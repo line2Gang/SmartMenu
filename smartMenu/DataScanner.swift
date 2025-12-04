@@ -18,7 +18,6 @@ struct DataScanner: UIViewControllerRepresentable {
         scanner.delegate = context.coordinator
         try? scanner.startScanning()
         
-        // Start the background task to watch the video stream
         Task {
             for await items in scanner.recognizedItems {
                 context.coordinator.currentItems = items
@@ -34,7 +33,6 @@ struct DataScanner: UIViewControllerRepresentable {
             Task { @MainActor in
                 let items = context.coordinator.currentItems
                 
-                // 1. Update the bindings with the text found
                 context.coordinator.parent.recognizedItems = items.compactMap { item in
                     switch item {
                     case .text(let text): return text.transcript
@@ -42,7 +40,6 @@ struct DataScanner: UIViewControllerRepresentable {
                     }
                 }
                 
-                // 2. Turn the trigger off (this signals the UI that we are done)
                 context.coordinator.parent.startScanning = false
             }
         }

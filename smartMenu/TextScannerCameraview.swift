@@ -2,20 +2,19 @@ import SwiftUI
 import VisionKit
 
 struct TextScannerCameraview: View {
-    // State to hold the list of ALL scanned text
+    //all scanned item
     @State private var scannedItems: [String] = []
     
-    // State to control showing the camera
+    //X button to close the camera
     @State private var showCamera: Bool = false
     
-    // State to trigger the capture action
+    //used to view the camera view
     @State private var performCapture: Bool = false
     
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
                 
-                // --- STATE A: No text scanned yet ---
                 if scannedItems.isEmpty {
                     ContentUnavailableView(
                         "No Menu Scanned",
@@ -23,7 +22,6 @@ struct TextScannerCameraview: View {
                         description: Text("Scan a menu to translate it")
                     )
                 }
-                // --- STATE B: Text found -> Show List ---
                 else {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 15) {
@@ -56,8 +54,7 @@ struct TextScannerCameraview: View {
                 }
                 
                 Spacer()
-                
-                // --- The Main Button ---
+
                 Button(action: {
                     showCamera = true
                 }) {
@@ -73,18 +70,15 @@ struct TextScannerCameraview: View {
             }
             .navigationTitle("Smart Menu")
             
-            // --- The Camera Modal ---
             .fullScreenCover(isPresented: $showCamera) {
                 ZStack(alignment: .bottom) {
                     
-                    // 1. The Scanner View
                     DataScanner(
                         recognizedItems: $scannedItems,
                         startScanning: $performCapture
                     )
                     .ignoresSafeArea()
-                    
-                    // 2. The Capture Button Overlay
+                   
                     Button(action: {
                         performCapture = true
                     }) {
@@ -99,7 +93,7 @@ struct TextScannerCameraview: View {
                             .shadow(radius: 10)
                     }
                     
-                    // 3. Close Button (Top Right)
+
                     VStack {
                         HStack {
                             Spacer()
@@ -116,11 +110,8 @@ struct TextScannerCameraview: View {
                         Spacer()
                     }
                 }
-                // LOGIC: Watch for when capture finishes.
-                // When 'performCapture' flips back to false (done by the scanner), we close the camera.
                 .onChange(of: performCapture) { oldValue, newValue in
                     if newValue == false {
-                        // Capture is done, close the camera!
                         showCamera = false
                     }
                 }
