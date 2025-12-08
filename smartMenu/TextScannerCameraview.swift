@@ -3,13 +3,10 @@ import VisionKit
 import Translation
 
 struct TextScannerCameraview: View {
-    // All scanned items (State acts as our data source here)
-    @State private var scannedItems: [String] = []
+    @ObservedObject private var textViewModel = TextViewModel()
     
-    // Translation Configuration State
     @State private var configuration: TranslationSession.Configuration?
     
-    // Hardcoded languages as requested
     private var sourceLanguage = Locale.Language(identifier: "en")
     private var targetLanguage = Locale.Language(identifier: "it")
     
@@ -21,7 +18,7 @@ struct TextScannerCameraview: View {
         NavigationStack {
             VStack(spacing: 20) {
                 
-                if scannedItems.isEmpty {
+                if textViewModel.scannedItem.isEmpty {
                     ContentUnavailableView(
                         "No Menu Scanned",
                         systemImage: "doc.text.viewfinder",
@@ -35,13 +32,13 @@ struct TextScannerCameraview: View {
                                 Text("Scanned Menu Items")
                                     .font(.headline)
                                 Spacer()
-                                Text("\(scannedItems.count) items found")
+                                Text("\(textViewModel.scannedItem.count) items found")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                             .padding(.horizontal)
                             
-                            ForEach(scannedItems, id: \.self) { item in
+                            ForEach(textViewModel.scannedItem, id: \.self) { item in
                                 VStack(alignment: .leading) {
                                     Text(item)
                                         .font(.body)
@@ -58,12 +55,9 @@ struct TextScannerCameraview: View {
                 }
                 
                 Spacer()
-                
-                // Action Buttons
+
                 VStack(spacing: 12) {
-                    
-                    // 1. TRANSLATE BUTTON (Only show if we have items)
-                    if !scannedItems.isEmpty {
+                    if !textViewModel.scannedItem.isEmpty {
                         Button(action: {
                             triggerTranslation()
                         }) {
@@ -76,12 +70,11 @@ struct TextScannerCameraview: View {
                                 .cornerRadius(12)
                         }
                     }
-                    
-                    // 2. SCAN BUTTON
+
                     Button(action: {
                         showCamera = true
                     }) {
-                        Label(scannedItems.isEmpty ? "Scan Menu" : "Scan Again", systemImage: "camera.fill")
+                        Label(textViewModel.scannedItem.isEmpty ? "Scan Menu" : "Scan Again", systemImage: "camera.fill")
                             .font(.headline)
                             .padding()
                             .frame(maxWidth: .infinity)
@@ -94,31 +87,14 @@ struct TextScannerCameraview: View {
             }
             .navigationTitle("Smart Menu")
             
-            // --- TRANSLATION LOGIC STARTS HERE ---
             .translationTask(configuration) { session in
-                do {
-                    // 1. Prepare the batch of requests from your scanned array
-                    let requests: [TranslationSession.Request] = scannedItems.map { item in
-                        TranslationSession.Request(sourceText: item)
-                    }
-                    
-                    // 2. Send the batch to Apple's engine
-                    let responses = try await session.translations(from: requests)
-                    
-                    // 3. Update the UI with results
-                    // We replace the English text with the Italian text directly
-                    scannedItems = responses.map { $0.targetText }
-                    
-                } catch {
-                    print("Translation error: \(error)")
-                }
+                await textViewModel.translateAllAtOnce(using:session)
+                
             }
-            // --- TRANSLATION LOGIC ENDS HERE ---
-            
             .fullScreenCover(isPresented: $showCamera) {
                 ZStack(alignment: .bottom) {
                     DataScanner(
-                        recognizedItems: $scannedItems,
+                        recognizedItems: $textViewModel.scannedItem,
                         startScanning: $performCapture
                     )
                     .ignoresSafeArea()
