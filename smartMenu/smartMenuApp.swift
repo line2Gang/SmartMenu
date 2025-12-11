@@ -1,10 +1,12 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct smartMenuApp: App {
     var body: some Scene {
         WindowGroup {
-            TextScannerCameraview()
+            settingsView()
         }
+        .modelContainer(for: SettingsModel.self)
     }
 }
