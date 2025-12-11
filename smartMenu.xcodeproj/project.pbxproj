@@ -21,6 +21,16 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		AAADBD472EEB2A7B00897BC7 /* Model */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Model;
+			sourceTree = "<group>";
+		};
+		AAADBD492EEB2A9C00897BC7 /* ViewModel */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		AABFCC032EE089AB00232D4C /* smartMenu */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -47,6 +57,8 @@
 			children = (
 				AABFCC032EE089AB00232D4C /* smartMenu */,
 				AABFCC022EE089AB00232D4C /* Products */,
+				AAADBD472EEB2A7B00897BC7 /* Model */,
+				AAADBD492EEB2A9C00897BC7 /* ViewModel */,
 			);
 			sourceTree = "<group>";
 		};
@@ -74,6 +86,8 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				AAADBD472EEB2A7B00897BC7 /* Model */,
+				AAADBD492EEB2A9C00897BC7 /* ViewModel */,
 				AABFCC032EE089AB00232D4C /* smartMenu */,
 			);
 			name = smartMenu;

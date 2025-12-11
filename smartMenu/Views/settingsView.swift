@@ -7,25 +7,35 @@
 
 import SwiftUI
 import SwiftData
+import Translation // Imported if you need Locale helpers, otherwise Foundation is enough
 
 struct settingsView: View {
     
     @Environment(\.modelContext) private var context
     @Query var settings: [SettingsModel]
 
-    
     @State private var showSavedToast = false
     @State private var navigateToNext = false
-    @State private var selectedLanguage: String =
-        Locale.current.localizedString(forLanguageCode: Locale.current.language.languageCode?.identifier ?? "")
-        ?? "None"
+    
+    // Default values
+    @State private var selectedTargetLanguage: String = "Italian"
+    @State private var selectedSourceLanguage: String =
+        Locale.current.localizedString(forLanguageCode: Locale.current.language.languageCode?.identifier ?? "") ?? "English"
+    
     @State private var selectedDiet: String = "None"
     @State private var allergyInput: String = ""
     @State private var allergies: [String] = []
     
-    // MARK: - Searcher
-        @State private var showLanguageSelector = false
-        @State private var searchText = ""
+    // MARK: - Searcher & Selection Logic
+    @State private var showLanguageSelector = false
+    @State private var searchText = ""
+    
+    // Enum to know which button triggered the sheet
+    enum LanguageField {
+        case source
+        case target
+    }
+    @State private var activeField: LanguageField = .target
 
     // MARK: - Dynamic system language list
     private var systemLanguages: [String] {
@@ -36,13 +46,11 @@ struct settingsView: View {
     }
     
     // MARK: - Filter Language list
-        private var filteredLanguages: [String] {
-            if searchText.isEmpty { return systemLanguages }
-            return systemLanguages.filter { $0.localizedCaseInsensitiveContains(searchText) }
-        }
+    private var filteredLanguages: [String] {
+        if searchText.isEmpty { return systemLanguages }
+        return systemLanguages.filter { $0.localizedCaseInsensitiveContains(searchText) }
+    }
     
-    
-
     let diets = [
         "None", "Vegetarian", "Vegan", "Pescatarian",
         "Keto", "Paleo", "Gluten-Free", "Dairy-Free"
@@ -50,20 +58,44 @@ struct settingsView: View {
     
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             Form {
 
                 // MARK: - LANGUAGE PICKER WITH SEARCH
                 Section(header: Text("Language")) {
-                    Button(action: { showLanguageSelector = true }) {
+                    
+                    // Button for Target Language
+                    Button(action: {
+                        activeField = .target
+                        searchText = "" // Clear search
+                        showLanguageSelector = true
+                    }) {
                         HStack {
-                            
-                            Text(selectedLanguage == "None" ? "None" : selectedLanguage)
+                            Text("Target Language:")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Text(selectedTargetLanguage)
+                                .foregroundColor(.gray)
+                        }
+                    }
+
+                    // Button for Source Language
+                    Button(action: {
+                        activeField = .source
+                        searchText = "" // Clear search
+                        showLanguageSelector = true
+                    }) {
+                        HStack {
+                            Text("Source Language:")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            Text(selectedSourceLanguage)
                                 .foregroundColor(.gray)
                         }
                     }
                 }
                 
+                // MARK: - SHARED LANGUAGE SHEET
                 .sheet(isPresented: $showLanguageSelector) {
                     NavigationView {
                         VStack {
@@ -75,13 +107,21 @@ struct settingsView: View {
                             // Filtered results
                             List(filteredLanguages, id: \.self) { lang in
                                 Button(action: {
-                                    selectedLanguage = lang
+                                    // Update the variable based on which button was clicked
+                                    if activeField == .target {
+                                        selectedTargetLanguage = lang
+                                    } else {
+                                        selectedSourceLanguage = lang
+                                    }
                                     showLanguageSelector = false
                                 }) {
                                     HStack {
                                         Text(lang)
                                         Spacer()
-                                        if lang == selectedLanguage {
+                                        
+                                        // Show checkmark if this language is the currently selected one for the active field
+                                        if (activeField == .target && lang == selectedTargetLanguage) ||
+                                           (activeField == .source && lang == selectedSourceLanguage) {
                                             Image(systemName: "checkmark")
                                                 .foregroundColor(.blue)
                                         }
@@ -89,7 +129,7 @@ struct settingsView: View {
                                 }
                             }
                         }
-                        .navigationTitle("Select Language")
+                        .navigationTitle(activeField == .target ? "Select Target" : "Select Source")
                         .toolbar {
                             ToolbarItem(placement: .cancellationAction) {
                                 Button("Close") { showLanguageSelector = false }
@@ -97,6 +137,7 @@ struct settingsView: View {
                         }
                     }
                 }
+                
                 // MARK: DIET PICKER
                 Section(header: Text("Specific Diet")) {
                     Picker("Diet", selection: $selectedDiet) {
@@ -131,34 +172,26 @@ struct settingsView: View {
                         saveSettings()
                         showSavedToast = true
                         
-                        // Espera 2 segundos, luego navega
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        // Navigate after delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                             navigateToNext = true
                         }
-                        
                     }) {
-                        Text("Save")
+                        Text("Save") // Changed text to indicate flow
                             .frame(maxWidth: .infinity)
                             .foregroundColor(.white)
                     }
                     .padding()
                     .background(Color.blue)
                     .cornerRadius(8)
-                
                 }
             }
             
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Settings")
-                        .font(.largeTitle.bold())
-                        .padding(.top, 20)
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Settings")
+            //.navigationBarTitleDisplayMode(.inline)
             .onAppear { loadExistingSettings() }
             .navigationDestination(isPresented: $navigateToNext) {
-                    TextScannerCameraview()
+                 TextScannerCameraview()
             }
         }
         .overlay(
@@ -171,7 +204,6 @@ struct settingsView: View {
                         .cornerRadius(10)
                         .transition(.opacity)
                         .onAppear {
-                            // Ocultar después de 2 segundos por si se usa en otro contexto
                             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                                 withAnimation {
                                     showSavedToast = false
@@ -199,13 +231,17 @@ struct settingsView: View {
 
     private func saveSettings() {
         if let existing = settings.first {
-            existing.language = selectedLanguage
+            existing.sourceLanguage = selectedSourceLanguage
+            existing.targetLanguage = selectedTargetLanguage
             existing.diet = selectedDiet
             existing.allergies = allergies
         } else {
-            let newSettings = SettingsModel(language: selectedLanguage,
-                                            diet: selectedDiet,
-                                            allergies: allergies)
+            let newSettings = SettingsModel(
+                sourceLanguage: selectedSourceLanguage,
+                targetLanguage: selectedTargetLanguage,
+                diet: selectedDiet,
+                allergies: allergies
+            )
             context.insert(newSettings)
         }
 
@@ -214,7 +250,8 @@ struct settingsView: View {
 
     private func loadExistingSettings() {
         if let existing = settings.first {
-            selectedLanguage = existing.language
+            selectedSourceLanguage = existing.sourceLanguage
+            selectedTargetLanguage = existing.targetLanguage
             selectedDiet = existing.diet
             allergies = existing.allergies
         }
@@ -222,9 +259,7 @@ struct settingsView: View {
     
 }
 
-
-
-
 #Preview {
     settingsView()
 }
+
