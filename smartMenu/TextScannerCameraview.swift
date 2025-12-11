@@ -14,6 +14,7 @@ struct TextScannerCameraview: View {
     @State private var showCamera: Bool = false
     @State private var performCapture: Bool = false
     
+    
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
