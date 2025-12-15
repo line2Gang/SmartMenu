@@ -3,10 +3,23 @@ import SwiftData
 
 @main
 struct smartMenuApp: App {
+    
+    @Environment(\.modelContext)
+    var context
+    @State
+    private var translationController = TranslationController()
+    @State
+    private var analyserController = AnalyserController()
+    @State
+    private var userController = UserController()
+    
     var body: some Scene {
         WindowGroup {
-            settingsView()
+            TextScannerCameraView()
+                .environment(translationController)
+                .environment(analyserController)
+                .environment(userController)
         }
-        .modelContainer(for: SettingsModel.self)
+        .modelContainer(for: User.self)
     }
 }

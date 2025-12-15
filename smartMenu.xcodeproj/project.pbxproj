@@ -26,9 +26,9 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
-		AAADBD492EEB2A9C00897BC7 /* ViewModel */ = {
+		AAADBD492EEB2A9C00897BC7 /* Controllers */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = ViewModel;
+			path = Controllers;
 			sourceTree = "<group>";
 		};
 		AABFCC032EE089AB00232D4C /* smartMenu */ = {
@@ -58,7 +58,7 @@
 				AABFCC032EE089AB00232D4C /* smartMenu */,
 				AABFCC022EE089AB00232D4C /* Products */,
 				AAADBD472EEB2A7B00897BC7 /* Model */,
-				AAADBD492EEB2A9C00897BC7 /* ViewModel */,
+				AAADBD492EEB2A9C00897BC7 /* Controllers */,
 			);
 			sourceTree = "<group>";
 		};
@@ -87,7 +87,7 @@
 			);
 			fileSystemSynchronizedGroups = (
 				AAADBD472EEB2A7B00897BC7 /* Model */,
-				AAADBD492EEB2A9C00897BC7 /* ViewModel */,
+				AAADBD492EEB2A9C00897BC7 /* Controllers */,
 				AABFCC032EE089AB00232D4C /* smartMenu */,
 			);
 			name = smartMenu;
@@ -280,7 +280,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2G9M3YLQV;
+				DEVELOPMENT_TEAM = 5YH873AVKF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = smartMenu/Info.plist;
@@ -314,7 +314,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = M2G9M3YLQV;
+				DEVELOPMENT_TEAM = 5YH873AVKF;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = smartMenu/Info.plist;

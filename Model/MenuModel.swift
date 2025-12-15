@@ -3,7 +3,7 @@ import Foundation
 import FoundationModels
 
 @Generable
-struct MenuAnalysis {
+struct MenuModel {
     @Guide(description: "A list of all distinct meals found in the text.")
     let meals: [Meal]
 }
