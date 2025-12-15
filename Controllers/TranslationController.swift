@@ -25,16 +25,19 @@ final class TranslationController {
     }
     // MARK: - Translate
     func translate(sourceText: [String]) async {
-        let requests: [TranslationSession.Request] = sourceText.map {
+        let requests = sourceText.map {
             TranslationSession.Request(sourceText: $0)
         }
         do {
             let responses = try await session.translations(from: requests)
-            self.translatedText = responses.map { $0.targetText }
+            await MainActor.run {
+                self.translatedText = responses.map { $0.targetText }
+                print("Translation launched")
+            }
             // Print
             print(self.translatedText)
         } catch {
-            print("Error during the translation: \(error.localizedDescription)")
+            print("Error during the translation(1): \(error.localizedDescription)")
         }
     }
 }

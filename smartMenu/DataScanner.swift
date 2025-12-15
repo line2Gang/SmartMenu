@@ -10,7 +10,7 @@ struct DataScanner: UIViewControllerRepresentable {
         let scanner = DataScannerViewController(
             recognizedDataTypes: [.text()],
             qualityLevel: .balanced,
-            recognizesMultipleItems: true, // scans everything
+            recognizesMultipleItems: true,
             isHighFrameRateTrackingEnabled: true,
             isHighlightingEnabled: true
         )

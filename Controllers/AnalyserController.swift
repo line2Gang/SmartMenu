@@ -12,8 +12,7 @@ import Translation
 final class AnalyserController {
     // MARK: - Property
     // Configuration
-    @ObservationIgnored
-    private let session = LanguageModelSession(instructions:
+    let session = LanguageModelSession(instructions:
 """
                     You are a menu analysis assistant. Your job is to extract distinct meals from a restaurant menu text.
                     

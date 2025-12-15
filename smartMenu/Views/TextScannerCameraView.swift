@@ -2,11 +2,12 @@ import SwiftUI
 import VisionKit
 import Translation
 import SwiftData
+import FoundationModels
 
 struct TextScannerCameraView: View {
     
     @Environment(\.modelContext)
-    var context
+    private var context
     @Environment(UserController.self)
     var userController
     @Environment(TranslationController.self)
@@ -26,6 +27,8 @@ struct TextScannerCameraView: View {
     private var userProfilIsPresented: Bool = false
     @State
     var contentScanned: [String] = []
+    @State
+    private var isReady: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -49,33 +52,33 @@ struct TextScannerCameraView: View {
                                 }
                             }
                             .padding(.horizontal)
-//                            // Show Meals (These will re-order automatically when VM sorts them)
-//                            if !self.contentScanned.isEmpty {
-//                                ForEach(textViewModel.structuredMeals, id: \.self) { meal in
-//                                    VStack(alignment: .leading) {
-//                                        Text(meal.name).font(.headline)
-//                                        if !meal.ingredients.isEmpty {
-//                                            Text(meal.ingredients.joined(separator: ", "))
-//                                                .font(.subheadline)
-//                                                .foregroundStyle(.secondary)
-//                                        }
-//                                    }
-//                                    .padding()
-//                                    .frame(maxWidth: .infinity, alignment: .leading)
-//                                    .background(Color.green.opacity(0.1))
-//                                    .cornerRadius(12)
-//                                    .padding(.horizontal)
-//                                }
-//                            } else {
-//                                ForEach(textViewModel.scannedItem, id: \.self) { item in
-//                                    Text(item)
-//                                        .padding()
-//                                        .frame(maxWidth: .infinity, alignment: .leading)
-//                                        .background(Color.gray.opacity(0.1))
-//                                        .cornerRadius(12)
-//                                        .padding(.horizontal)
-//                                }
-//                            }
+                            //                            // Show Meals (These will re-order automatically when VM sorts them)
+                            //                            if !self.contentScanned.isEmpty {
+                            //                                ForEach(textViewModel.structuredMeals, id: \.self) { meal in
+                            //                                    VStack(alignment: .leading) {
+                            //                                        Text(meal.name).font(.headline)
+                            //                                        if !meal.ingredients.isEmpty {
+                            //                                            Text(meal.ingredients.joined(separator: ", "))
+                            //                                                .font(.subheadline)
+                            //                                                .foregroundStyle(.secondary)
+                            //                                        }
+                            //                                    }
+                            //                                    .padding()
+                            //                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            //                                    .background(Color.green.opacity(0.1))
+                            //                                    .cornerRadius(12)
+                            //                                    .padding(.horizontal)
+                            //                                }
+                            //                            } else {
+                            //                                ForEach(textViewModel.scannedItem, id: \.self) { item in
+                            //                                    Text(item)
+                            //                                        .padding()
+                            //                                        .frame(maxWidth: .infinity, alignment: .leading)
+                            //                                        .background(Color.gray.opacity(0.1))
+                            //                                        .cornerRadius(12)
+                            //                                        .padding(.horizontal)
+                            //                                }
+                            //                            }
                         }
                         .padding(.top)
                     }
@@ -99,19 +102,6 @@ struct TextScannerCameraView: View {
                         }
                     }
                     .padding()
-                    Button {
-                        Task {
-                          await translationController.translate(sourceText: self.contentScanned)
-                            if !translationController.translatedText.isEmpty {
-                                await analyserController.extractMenu(from: translationController.translatedText)
-                                if let user = userController.currentUser {
-                                    await analyserController.sortMenu(regarding: user)
-                                }
-                            }
-                        }
-                    } label: {
-                        
-                    }
                 }
             }
             .navigationTitle("Smart Menu")
@@ -131,6 +121,17 @@ struct TextScannerCameraView: View {
             .sheet(isPresented: $userProfilIsPresented) {
                 UserProfilView(isPresented: self.$userProfilIsPresented)
             }
+            .onChange(of: self.contentScanned) {
+                if !self.contentScanned.isEmpty {
+                    Task {
+                        await translationController.translate(sourceText: self.contentScanned)
+                        await analyserController.extractMenu(from: translationController.translatedText)
+                        if analyserController.session.isResponding {
+                            await analyserController.sortMenu(regarding: userController.currentUser)
+                        }
+                    }
+                }
+            }
             // Camera View
             .fullScreenCover(isPresented: $showCamera) {
                 ZStack(alignment: .bottom) {
@@ -139,20 +140,31 @@ struct TextScannerCameraView: View {
                         startScanning: $performCapture
                     )
                     .ignoresSafeArea()
-                    Button(action: { performCapture = true }) {
-                        Text("Capture Text")
-                            .font(.headline)
-                            .foregroundStyle(.white)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(30)
-                            .padding(.bottom, 50)
+                    VStack {
+                        Button(action: { performCapture = true }) {
+                            Text("Capture Text")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(30)
+                                .padding(.bottom, 50)
+                        }
+                        Button("Close Camera") {
+                            self.showCamera = false
+                        }
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(30)
+                        .padding(.bottom, 50)
                     }
                 }
                 .onChange(of: performCapture) { oldValue, newValue in
                     if newValue == false {
                         showCamera = false
-                        if !self.$contentScanned.isEmpty {
+                        if !self.contentScanned.isEmpty {
                             self.contentScanned.removeAll()
                         }
                     }

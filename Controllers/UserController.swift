@@ -52,5 +52,6 @@ final class UserController {
     // MARK: - Select user
     func selectUser(user: User) {
         self.currentUser = user
+        print(user.name)
     }
 }
