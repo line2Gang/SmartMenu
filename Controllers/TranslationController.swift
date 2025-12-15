@@ -10,9 +10,12 @@ import NaturalLanguage
 @Observable
 final class TranslationController {
     // MARK: - Property
-    let session: TranslationSession
-    let sourceLanguage = Locale.Language(identifier: "it")
-    let targetLanguage: Locale.Language
+    @ObservationIgnored
+    private let session: TranslationSession
+    @ObservationIgnored
+    private let sourceLanguage = Locale.Language(identifier: "it")
+    @ObservationIgnored
+    private let targetLanguage: Locale.Language
     // Will save translated text
     var translatedText: [String] = []
     // MARK: - Init

@@ -12,7 +12,8 @@ import Translation
 final class AnalyserController {
     // MARK: - Property
     // Configuration
-    let session = LanguageModelSession(instructions:
+    @ObservationIgnored
+    private let session = LanguageModelSession(instructions:
 """
                     You are a menu analysis assistant. Your job is to extract distinct meals from a restaurant menu text.
                     
@@ -28,7 +29,8 @@ final class AnalyserController {
                     6. Be careful to dinstinct different meals from their ingredients
 """
     )
-    let model = SystemLanguageModel.default
+    @ObservationIgnored
+    private let model = SystemLanguageModel.default
     // Will save extractedText
     var extractedText: [Meal] = []
     // Will save the sortedMenu
