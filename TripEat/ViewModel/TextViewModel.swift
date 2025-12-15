@@ -121,7 +121,8 @@ class TextViewModel {
             //print("")
             // Sort: Safe items first
             self.structuredMeals.sort { $0.canEat && !$1.canEat }
-            
+            print("sorted: \(self.structuredMeals)")
+            print("allergieds: \(settings.allergies), diet: \(settings.diet)")
         } catch {
             print("Evaluation Error: \(error)")
         }

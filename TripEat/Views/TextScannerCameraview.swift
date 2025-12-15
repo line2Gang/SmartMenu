@@ -249,3 +249,4 @@ struct BadgeView: View {
 #Preview {
     TextScannerCameraview()
 }
+

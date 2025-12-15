@@ -191,7 +191,7 @@ struct settingsView: View {
             //.navigationBarTitleDisplayMode(.inline)
             .onAppear { loadExistingSettings() }
             .navigationDestination(isPresented: $navigateToNext) {
-                TextScannerCameraview()
+                 TextScannerCameraview()
             }
         }
         .overlay(
@@ -262,3 +262,4 @@ struct settingsView: View {
 #Preview {
     settingsView()
 }
+
